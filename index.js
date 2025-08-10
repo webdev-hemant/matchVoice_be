@@ -6,7 +6,6 @@ const authRoutes = require("./src/routes/authRoutes");
 const healthProfileRoutes = require("./src/routes/userHealthProfileRoutes");
 const chatRoutes = require("./src/routes/chatRoutes");
 const otpRoutes = require('./src/routes/otpRoutes');
-const { SERVER_PORT } = require("./src/config/allEnv");
 const serverless = require("serverless-http");
 
 const app = express();
@@ -22,13 +21,13 @@ app.get("/", (req, res) => {
 });
 
 app.use(express.json());
-
 app.use("/api/auth", authRoutes);
 app.use("/api/healthProfile", healthProfileRoutes);
 app.use("/api/chat", chatRoutes);
 app.use('/api/otp', otpRoutes);
 
-const initDb = async () => {
+// Connect to DB
+(async () => {
   try {
     await sequelize.authenticate();
     console.log("Database connected successfully.");
@@ -36,15 +35,8 @@ const initDb = async () => {
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
-};
+})();
 
-initDb();
-
-// Export for serverless
+// Export handler for Vercel
+module.exports = app;
 module.exports.handler = serverless(app);
-
-// If running locally, also start a server
-if (process.env.NODE_ENV !== "production") {
-  const PORT = SERVER_PORT || 3000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-}
