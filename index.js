@@ -16,6 +16,10 @@ app.use(
   })
 );
 
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Server is healthy!" });
+})
+
 app.use(express.json());
 
 app.get("/", (req, res) => res.json({ message: "It's working!" }));
