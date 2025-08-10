@@ -7,6 +7,7 @@ const healthProfileRoutes = require("./src/routes/userHealthProfileRoutes");
 const chatRoutes = require("./src/routes/chatRoutes");
 const otpRoutes = require('./src/routes/otpRoutes');
 const { SERVER_PORT } = require("./src/config/allEnv");
+const serverless = require("serverless-http");
 
 const app = express();
 
@@ -18,31 +19,32 @@ app.use(
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "Server is healthy!" });
-})
+});
 
 app.use(express.json());
-
-app.get("/", (req, res) => res.json({ message: "It's working!" }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/healthProfile", healthProfileRoutes);
 app.use("/api/chat", chatRoutes);
 app.use('/api/otp', otpRoutes);
 
-const startServer = async () => {
+const initDb = async () => {
   try {
     await sequelize.authenticate();
     console.log("Database connected successfully.");
-
-    await sequelize.sync({ alter: true }) // Create tables if they don't exist and update them if they do
-
-    const PORT = SERVER_PORT;
-    app.listen(PORT, () => {
-      console.log(`Server is running on port ${PORT}`);
-    });
+    await sequelize.sync({ alter: true });
   } catch (error) {
     console.error("Unable to connect to the database:", error);
   }
 };
 
-startServer();
+initDb();
+
+// Export for serverless
+module.exports.handler = serverless(app);
+
+// If running locally, also start a server
+if (process.env.NODE_ENV !== "production") {
+  const PORT = SERVER_PORT || 3000;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+}
