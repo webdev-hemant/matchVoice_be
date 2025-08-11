@@ -15,6 +15,7 @@ router.post('/send', async (req, res) => {
 
     try {
         const number = "+91" + phone;
+        console.log({accountSid, authToken, TWILIO_SERVICE, number});
         const verification = await twilioClient.verify.v2.services(TWILIO_SERVICE)
             .verifications
             .create({ to: number, channel: 'sms' });
