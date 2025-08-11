@@ -6,6 +6,7 @@ const authRoutes = require("./src/routes/authRoutes");
 const healthProfileRoutes = require("./src/routes/userHealthProfileRoutes");
 const chatRoutes = require("./src/routes/chatRoutes");
 const otpRoutes = require('./src/routes/otpRoutes');
+const serverless = require("serverless-http");
 
 const app = express();
 
@@ -35,3 +36,7 @@ app.use('/api/otp', otpRoutes);
     console.error("Unable to connect to the database:", error);
   }
 })();
+
+// Export handler for Vercel
+module.exports = app;
+module.exports.handler = serverless(app);
